@@ -7,13 +7,16 @@ GET /books – отримати список всіх книг
 GET /books/{id} – отримати деталі книги по ID
 POST /books – додати нову книгу
 DELETE /books/{id} – видалити книгу по ID
+
 Функціонал
 Фільтрація: author, status
 Сортування: title, year
 Використання async/await
 Валідація через Pydantic
+
 Тести
 Використовується pytest для перевірки CRUD операцій
+
 Запуск
 Через uvicorn (для локальної розробки):
 uvicorn main:app --reload
