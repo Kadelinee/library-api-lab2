@@ -13,6 +13,12 @@ def create_book(db: Session, book: BookCreate) -> Book:
 def list_books(db: Session):
     return db.query(Book).all()
 
+def list_books_cursor(db: Session, cursor: int | None = None, limit: int = 10):
+    query = db.query(Book).order_by(Book.id)
+    if cursor is not None:
+        query = query.filter(Book.id > cursor)
+    return query.limit(limit).all()
+
 def get_book(db: Session, book_id: UUID):
     return db.query(Book).filter(Book.id == book_id).first()
 

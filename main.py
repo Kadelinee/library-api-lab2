@@ -1,13 +1,21 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from models.database import Base, engine, SessionLocal
-from services.book_service import create_book, list_books, get_book, update_book, delete_book
+from services.book_service import (
+    create_book,
+    list_books_cursor,
+    get_book,
+    update_book,
+    delete_book
+)
 from schemas.book import BookCreate, BookRead
+from api.routes import router
 from uuid import UUID
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Library API")
+
 def get_db():
     db = SessionLocal()
     try:
@@ -15,13 +23,23 @@ def get_db():
     finally:
         db.close()
 
-@app.post("/books/", response_model=BookRead)
+@app.post("/books", response_model=BookRead)
 def add_book(book: BookCreate, db: Session = Depends(get_db)):
     return create_book(db, book)
 
-@app.get("/books/", response_model=list[BookRead])
-def read_books(db: Session = Depends(get_db)):
-    return list_books(db)
+@app.get("/books", response_model=list[BookRead])
+def read_books(
+    cursor: int = Query(
+        default=None,
+        description="ID останньої книги з попередньої сторінки",
+    ),
+    limit: int = Query(
+        default=10,
+        description="Кількість книг на сторінку",
+    ),
+    db: Session = Depends(get_db)
+):
+    return list_books_cursor(db, cursor=cursor, limit=limit)
 
 @app.get("/books/{book_id}", response_model=BookRead)
 def read_book(book_id: UUID, db: Session = Depends(get_db)):
